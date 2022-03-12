@@ -1,3 +1,4 @@
 (defpackage cl-ctm
-  (:use :cl))
+  (:use :cl
+        :arrows))
 (in-package :cl-ctm)

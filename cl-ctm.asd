@@ -2,8 +2,9 @@
   :version "0.1.0"
   :author "doyougnu"
   :license ""
-  :depends-on ()
+  :depends-on ("arrows")
   :components ((:module "src"
+                :serial t
                 :components
                 ((:file "package")
                  (:file "1"))))
