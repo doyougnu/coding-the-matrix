@@ -7,3 +7,10 @@
 
 (defun foo ()
   (+ 1 2))
+
+(defclass mixin ()
+  ((slot :initarg slot)))
+
+(defclass func-obj (sb-mop::funcallable-standard-object mixin)
+  ()
+  (:metaclass sb-mop::funcallable-standard-class))
