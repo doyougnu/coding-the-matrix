@@ -1,15 +1,17 @@
-{ config, lib, pkgs, ... }:
+{ pkgs, lisp }:
 
 let
-  sbcl = "$pkgs.sbcl}/bin/sbcl -- script";
-
+  sbcl-start = "${lisp}/bin/sbcl -- script";
 in
-pkgs.lisPackages_new.build-asdf-system {
+pkgs.lispPackages_new.build-asdf-system {
   pname = "cl-ctm";
   version = "0.0.1";
-  src = pkgs.fetchFromGithub {
-    url = "https://github.com/doyougnu/coding-the-matrix.git";
+  src = pkgs.fetchFromGitHub {
+    owner = "doyougnu";
+    repo  = "coding-the-matrix";
+    rev   = "3108bb633805f27a2d3f87524d798becf090db04";
+    sha256 = "2FexArxHlLmSShJTxSQihO17SHxh5X7dKPbGDFEs6Sc=";
   };
-  lisp = pkgs.lispPackages_new.lispWithPackages sbcl;
-  # lispLibs = [ arrows closer-mop lisp-stat ];
+  lisp = sbcl-start;
+  lispLibs = with pkgs.lispPackages_new.sbclPackages; [ alexandria arrow-macros lisp-stat ];
 }
