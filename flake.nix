@@ -17,7 +17,7 @@
               };
             devShells =
               {
-                default = packages.default;
+                default = import ./cl-shell.nix { inherit pkgs; };
               };
             }
       );

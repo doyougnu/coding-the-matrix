@@ -1,5 +1,11 @@
-* . 
+* Readme
 
-** Usage
+** Just learning some common lisp
 
-** Installation
+** Installing on nixos
+- the cl infrastructure on nixos is a mess
+- I just run quicklisp and let the quicklisp system manage it:
+- for example this invocation installs ~lisp-stat~
+#+begin_src common-lisp
+(ql:quickload :lisp-stat)
+#+end_src
