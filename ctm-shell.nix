@@ -1,7 +1,8 @@
 { pkgs, lisp }:
 
 pkgs.mkShell {
-  nativeBuildInputs = [
+  buildInputs = [
+    pkgs.gnuplot
     lisp
   ];
 

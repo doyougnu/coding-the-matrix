@@ -2,7 +2,7 @@
   :version "0.1.0"
   :author "doyougnu"
   :license ""
-  :depends-on ("arrows" "closer-mop")
+  :depends-on ("arrows" "closer-mop" "vgplot" "eazy-gnuplot")
   :components ((:module "src"
                 :serial t
                 :components

@@ -13,5 +13,5 @@ pkgs.lispPackages_new.build-asdf-system {
     sha256 = "2FexArxHlLmSShJTxSQihO17SHxh5X7dKPbGDFEs6Sc=";
   };
   lisp = sbcl-start;
-  lispLibs = with pkgs.lispPackages_new.sbclPackages; [ alexandria arrow-macros lisp-stat ];
+  lispLibs = with pkgs.lispPackages_new.sbclPackages; [ alexandria arrow-macros  ];
 }

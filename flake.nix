@@ -8,10 +8,12 @@
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
         let pkgs = import nixpkgs { inherit system; };
+
             lispCompiler = pkgs.lispPackages_new.sbclWithPackages
               (ps: with ps; [ alexandria
                               arrow-macros
-                              lisp-stat
+                              vgplot # works!
+                              eazy-gnuplot
                             ]);
         in
           rec
@@ -21,7 +23,7 @@
                                                 lisp = lispCompiler;
                                               };
               };
-            devShells = {
+            devShells = { # default = packages.default;
                 default = import ./ctm-shell.nix { inherit pkgs;
                                                    lisp   = lispCompiler;
                                                  };
