@@ -8,6 +8,7 @@
                 :components
                 ((:file "package")
                  (:file "1")
+                 (:file "4")
                  (:file "math")
                  (:file "type-system"))))
   :description ""
