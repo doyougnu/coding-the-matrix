@@ -1,7 +1,5 @@
 (in-package :cl-ctm)
 
-(defvar *state* nil "The current state: a list of conditions.")
-
 (defvar *ops*   nil "A list of available operators")
 
 (defstruct op "An operation"
@@ -10,34 +8,61 @@
            (del-list nil)
            (add-list nil))
 
-(defun GPS (*state* goals *ops*)
+;; notice we bind *ops* to itself, the leading *ops* is actual a lexical binding
+;; of the parameter which changes the *ops* that achieve-all references! Nice
+;; little short hand here
+(defun gps (state goals &optional (*ops* *ops*))
    "General Problem Solver; achieve all goals using provided *ops* even more text
     so much text"
-  (if (every #'achieve goals) 'solved))
+  (remove-if #'atom (achieve-all (cons '(start) state) goals nil)))
 
-(defun achieve (goal)
+(defun achieve-all (state goals goals-stack)
+  "Achieve each goal, and make sure they still hold at they end."
+  (let ((current-state state))
+    (if (and (every #'(lambda (g)
+                        (setf current-state
+                              (achieve current-state g goals-stack)))
+                    goals)
+             (subsetp goals current-state :test #'equal))
+        current-state)))
+
+(defun achieve (state goal goal-stack)
   "A goal is achieved if it already holds.
   or if there is an appropriate op for it that is applicable."
- (or (member goal *state*)
-     (some #'apply-op
-           (find-all goal *ops* :test #'appropriate-p))))
+  (dbg-ident :gps (length goal-stack) "Goal: ~a" goal)
+  (cond ((member-equal goal state)      state)
+        ((member-equal goal goal-stack) nil)
+        (t (some #'(lambda (op) (apply-op state goal op goal-stack))
+                 (find-all goal *ops* :test #'appropriate-p)))))
 
+(defun member-equal (item list)
+  (member item list :test #'equal))
+
+(defun apply-op (state goal op goal-stack)
+  "Print a message and update *state* if op is applicable."
+  (dbg-ident :gps (length goal-stack) "Action: ~a" (op-action op))
+  (let ((state2 (achieve-all state (op-preconds op)
+                             (cons goal goal-stack))))
+    (unless (null state2)
+      ;; return an updated state
+      (append (remove-if #'(lambda (x)
+                             (member-equal x (op-del-list op)))
+                         state2)
+              (op-add-list op)))))
 
 (defun appropriate-p (goal op)
   "An op is appropriate to a goal if it is in its add list."
   (member goal (op-add-list op)))
 
-(defun apply-op (op)
-  "Print a message and update *state* if op is applicable."
-  (when (every #'achieve (op-preconds op))
-    (print (list 'executing (op-action op)))
-    (setf *state* (set-difference *state* (op-del-list op)))
-    (setf *state* (union *state* (op-add-list op)))
-    t))
+(defun use (oplist)
+  "Use oplist as the default list of operators."
+  ;; Return something useful. but not too verbose:
+  ;; the number of operators.
+  (length (setf *ops* oplist)))
 
 (defun find-all (item sequence &rest keyword-args
-                               &key (test #'eql) test-not
-                               &allow-other-keys)
+                 &key (test #'eql) test-not
+                 &allow-other-keys)
   "Find all elements of sequence that match item according to the keywords. Does
    not alter the sequence"
   (if test-not
@@ -46,7 +71,55 @@
       (apply #'remove item sequence
              :test     (complement test)     keyword-args)))
 
-;;;;; tests
+(defvar *dbg-ids* nil "Identifiers used by dbg")
+
+(defun dbg (id format-string &rest args)
+  "Print debugging info if (DEBUG ID) has been specified."
+  (when (member id *dbg-ids*)
+    (fresh-line *debug-io*)
+    (apply #'format *debug-io* format-string args)))
+
+(defun my-debug (&rest ids)
+  "Start dbg output on the given ids."
+  (setf dbg-ids* (union ids *dbg-ids*)))
+
+(defun undebug (&rest ids)
+  "Stop dbg on the ids. With no ids, stop dbg altogether."
+  (setf *dbg-ids* (if (null ids)
+                      nil
+                      (set-difference *dbg-ids* ids))))
+
+(defun dbg-ident (id ident format-string &rest args)
+  "Print indented debugging info if (DEBUG ID) has been specified."
+  (when (member id *dbg-ids*)
+    (fresh-line *debug-io*)
+    (dotimes (i ident) (princ "  " *debug-io*))
+    (apply #'format *debug-io* format-string args)))
+
+(defun executing-p (x)
+  "Is x of the form: (executing ...)? "
+  (starts-with x 'executing))
+
+(defun starts-with (list x)
+  "Is this a list whose first element is x?"
+  (and (consp list)
+       (eql (first list) x)))
+
+(defun convert-op (op)
+  "Makes op conform to the (EXECUTING op) convention."
+  (unless (some #'executing-p (op-add-list op))
+    (push (list 'executing (op-action op)) (op-add-list op)))
+  op)
+
+(defun op (action &key preconds add-list del-list)
+  "Make a new operator that obeys the (EXECUTING op) convention"
+  (convert-op
+   (make-op :action action
+            :preconds preconds
+            :add-list add-list
+            :del-list del-list)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; tests
 (make-op :action   'drive-son-to-school
          :preconds '(son-at-home car-works)
          :add-list '(son-at-school)
@@ -75,16 +148,7 @@
             :add-list '(shop-has-money)
             :del-list '(have-money))))
 
-;;;; examples
+
+(my-debug :gps)
 (gps '(son-at-home car-needs-battery have-money have-phone-book)
-     '(son-at-school)
-     *school-ops*)
-
-(push (make-op :action 'ask-phone-number
-               :preconds '(in-communication-with-shop)
-               :add-list '(know-phone-number))
-      *school-ops*)
-
-(gps '(son-at-home car-needs-battery have-money)
-     '(son-at-school)
-     *school-ops*)
+     '(son-at-school))
