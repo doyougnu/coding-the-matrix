@@ -10,6 +10,7 @@
                  (:file "1")
                  (:file "4")
                  (:file "5")
+                 (:file "6")
                  (:file "math")
                  (:file "type-system"))))
   :description ""
