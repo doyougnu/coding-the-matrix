@@ -122,12 +122,6 @@
     (((?* ?x) I felt (?* ?y))
      (What other feelings do you have?)))))
 
-(defun eliza ()
-  "Respond to user input using pattern matching rules"
-  (loop
-    (print 'eliza>)
-    (write (flatten (use-eliza-rules (read))) :pretty t)))
-
 (defun use-eliza-rules (input)
   "Find some rule with which to transform the input"
   (some #'(lambda (rule)
@@ -136,6 +130,12 @@
                   (sublis (switch-viewpoint result)
                           (random-elt (rule-responses rule))))))
         *eliza-rules*))
+
+(defun eliza ()
+  "Respond to user input using pattern matching rules"
+  (loop
+    (print 'eliza>)
+    (write (flatten (use-eliza-rules (read))) :pretty t)))
 
 (defun switch-viewpoint (words)
   "Change I to you and vice versa, and so on"
@@ -148,6 +148,6 @@
 
 (defun random-elt (choices)
   "Choose an element from choices at random"
-  (-> (length choices)
+  (-<> (length choices)
       random
-      (elt choices)))
+      (elt choices <>)))
