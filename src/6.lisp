@@ -54,4 +54,14 @@
       (eql x value)))
 
 (my-debug :search)
+
+;; goes infinite
 ;; (depth-first-search 1 (is 12) #'binary-tree)
+
+(defun prepend (x y)
+  "Prepend y to start of x"
+  (append y x))
+
+(defun breadth-first-search (start goal-p successors)
+  "Search old states first until goal is reached."
+  (tree-search (list start) goal-p successors #'prepend))
