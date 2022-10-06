@@ -26,6 +26,7 @@
 ;;; and on't need to be declared first. How uncomfortably dynamic.
 ;;; -----
 ;;; just kidding I was confused about property lists which create maps from symbols
+;;; see: https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node108.html
 
 (defun tree-search (states goal-p successors combiner)
   "Find a state that satisfies goal-p. Start with states, and search according
@@ -53,4 +54,4 @@
       (eql x value)))
 
 (my-debug :search)
-(depth-first-search 1 (is 12) #'binary-tree)
+;; (depth-first-search 1 (is 12) #'binary-tree)
