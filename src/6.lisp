@@ -44,7 +44,6 @@
   "Search new states first until goal is reached."
   (tree-search (list start) goal-p successors #'append))
 
-
 (defun binary-tree (x)
   "And example binary tree"
   (list (* 2 x) (+ 1 (* 2 x))))
@@ -65,3 +64,47 @@
 (defun breadth-first-search (start goal-p successors)
   "Search old states first until goal is reached."
   (tree-search (list start) goal-p successors #'prepend))
+
+(defun finite-binary-tree (n)
+  "Return a successor function that generates a binary tree with n nodes."
+  #'(lambda (x)
+      (remove-if #'(lambda (child) (> child n))
+                 (binary-tree x))))
+
+(defun diff (num)
+  "Return the function that finds the difference from num."
+  #'(lambda (x) (abs (- x num))))
+
+(defun sorter (cost-fn)
+  "Return a combiner function that sorts according to cost-fn."
+  #'(lambda (new old)
+      (sort (append new old) #'< :key cost-fn)))
+
+(defun best-first-search (start goal-p successors cost-fn)
+  "Search lowest cost states first until goal is reached."
+  (tree-search (list start) goal-p successors (sorter cost-fn)))
+
+;; (best-first-search 1 (is 12) #'binary-tree (diff 12))
+
+(defun price-is-right (price)
+  "Return a function that measure the difference from price. But gives a big
+  penalty for going over price"
+  #'(lambda (x) (if (> x price)
+                    most-positive-fixnum
+                    (- price x))))
+
+;; (best-first-search 1 (is 12) #'binary-tree (price-is-right 12))
+
+(defun beam-search (start goal-p successors cost-fn beam-width)
+  "Search highest scoring states first until goal is reched, but never consider
+  more than beam-width states at a time."
+  (tree-search (list start) goal-p successors
+               #'(lambda (old new)
+                   (let ((sorted (funcall (sorter cost-fn) old new)))
+                     (if (> beam-width (length sorted))
+                         sorted
+                         (subseq sorted 0 beam-width))))))
+
+(beam-search 1 (is 12) #'binary-tree (price-is-right 12) 2)
+
+;; on 206

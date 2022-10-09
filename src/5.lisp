@@ -1,4 +1,4 @@
-(in-package :cl-ctm)
+(in-package #:cl-ctm)
 ;; let's make eliza
 
 ;; notice that we define a value for fail
@@ -100,17 +100,6 @@
   "Get the single-match function for x. if it is a symbol that has one"
   (when (symbolp x) (get x 'single-match)))
 
-(defun match-is (var-and-pred input bindings)
-  "Succeed and bind var if the input satisifes pred, where var-and-pred is the
-  list (var pred".
-  (let* ((var (first var-and-pred))
-         (pred (second var-and-pred))
-         (new-bindings (pat-match var input bindings)))
-    (if (or (eq new-bindings fail)
-            (not (funcall pred input)))
-        fail
-        new-bindings)))
-
 (defun match-and (patterns input bindings)
   "Succeed if all the patterns match the input."
   (cond ((eq bindings fail) fail)
@@ -133,7 +122,7 @@
 (defun match-not (patterns input bindings)
   "Succeed if none of the patterns match the input. This never binds any
    variables"
-  (if (match-or-patterns input  bindings)
+  (if (match-or patterns input  bindings)
       fail
       bindings))
 
@@ -201,15 +190,6 @@
     (((?* ?x) I felt (?* ?y))
      (What other feelings do you have?)))))
 
-(defun use-eliza-rules (input)
-  "Find some rule with which to transform the input"
-  (some #'(lambda (rule)
-            (let ((result (pat-match (rule-pattern rule) input)))
-              (if (not (eq result fail))
-                  (sublis (switch-viewpoint result)
-                          (random-elt (rule-responses rule))))))
-        *eliza-rules*))
-
 (defun eliza ()
   "Respond to user input using pattern matching rules"
   (loop
@@ -267,7 +247,7 @@
   "Find the first rule in rules that matches input, and apply the action to that
    rule."
   (some #'(lambda (rule)
-            (let ((result (funcall matcher (funcall rule-if-rule)
+            (let ((result (funcall matcher (funcall rule-if rule)
                                    input)))
               (if (not (eq result fail))
                   (funcall action result (funcall rule-then rule)))))
@@ -279,3 +259,14 @@
                          :action #'(lambda (bindings responses)
                                      (sublis (switch-viewpoint bindings)
                                              (random-elt responses)))))
+
+(defun match-is (var-and-pred input bindings)
+  "Succeed and bind var if the input satisifes pred, where var-and-pred is the
+  list (var pred)."
+  (let  ((var          var-and-pred)
+         (pred         var-and-pred))
+    (let ((new-bindings (pat-match var input bindings)))
+      (if (or (eq new-bindings fail)
+              (not (funcall pred input)))
+          fail
+          new-bindings))))

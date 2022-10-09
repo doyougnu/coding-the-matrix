@@ -81,7 +81,7 @@
 
 (defun my-debug (&rest ids)
   "Start dbg output on the given ids."
-  (setf dbg-ids* (union ids *dbg-ids*)))
+  (setf *dbg-ids* (union ids *dbg-ids*)))
 
 (defun undebug (&rest ids)
   "Stop dbg on the ids. With no ids, stop dbg altogether."

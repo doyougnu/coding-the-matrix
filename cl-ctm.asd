@@ -2,7 +2,8 @@
   :version "0.1.0"
   :author "doyougnu"
   :license ""
-  :depends-on ("alexandria" "arrows" "closer-mop" "vgplot" "eazy-gnuplot")
+  :depends-on (#:alexandria #:arrows #:closer-mop #:vgplot #:eazy-gnuplot)
+  :serial t
   :components ((:module "src"
                 :serial t
                 :components
@@ -11,7 +12,8 @@
                  (:file "4")
                  (:file "5")
                  (:file "6")
-                 (:file "math")
-                 (:file "type-system"))))
+                 ;; (:file "math")
+                 ;; (:file "type-system")
+                 )))
   :description ""
   :in-order-to ((test-op (test-op "./tests"))))
