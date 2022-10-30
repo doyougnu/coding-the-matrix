@@ -12,6 +12,8 @@
                  (:file "4")
                  (:file "5")
                  (:file "6")
+                 (:file "8")
+                 (:file "11")
                  ;; (:file "math")
                  ;; (:file "type-system")
                  )))
